@@ -40,9 +40,11 @@ func main() {
 	path := strings.Split(lines[0], " ")[1]
 	var response string
 	if path == "/" {
-		response = "HTTP/1.1 200 OK" + CRLF + CRLF + "Hello, World!"
+		response = http200OK("Hello, World!")
+	} else if after, ok := strings.CutPrefix(path, "/echo/"); ok {
+		response = http200OK(after)
 	} else {
-		response = "HTTP/1.1 404 Not Found" + CRLF + CRLF + "Not Found"
+		response = http404NotFound()
 	}
 	conn.Write([]byte(response))
 
