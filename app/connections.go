@@ -37,22 +37,36 @@ func handleConnection(conn net.Conn, cfg *Config) {
 		closeAfter := strings.EqualFold(req.Headers["Connection"], "close")
 		switch {
 		case path == "/":
-			http200OK(conn, "Hello, World!", nil, encoding)
 			if closeAfter {
+				header := map[string]string{
+					"Connection": "close",
+				}
+				http200OK(conn, "Hello, World!", header, encoding)
 				return
 			}
+			http200OK(conn, "Hello, World!", nil, encoding)
 		case strings.HasPrefix(path, "/echo/"):
+			if closeAfter {
+				header := map[string]string{
+					"Connection": "close",
+				}
+				echo := strings.TrimPrefix(path, "/echo/")
+				http200OK(conn, echo, header, encoding)
+				return
+			}
 			echo := strings.TrimPrefix(path, "/echo/")
 			http200OK(conn, echo, nil, encoding)
+		case path == "/user-agent":
 			if closeAfter {
+				header := map[string]string{
+					"Connection": "close",
+				}
+				ua := req.Headers["user-agent"]
+				http200OK(conn, ua, header, encoding)
 				return
 			}
-		case path == "/user-agent":
 			ua := req.Headers["user-agent"]
 			http200OK(conn, ua, nil, encoding)
-			if closeAfter {
-				return
-			}
 		case strings.HasPrefix(path, "/files/"):
 			fullPath := filepath.Join(cfg.Directory, strings.TrimPrefix(path, "/files/"))
 			fmt.Printf("Full path: %s", fullPath)
