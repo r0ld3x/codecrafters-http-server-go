@@ -23,7 +23,7 @@ func http200OK(conn net.Conn, body string, headers map[string]string, encoding s
 	if headers["Content-Type"] == "" {
 		headers["Content-Type"] = "text/plain"
 	}
-	fmt.Printf("http200OK body: %s", body)
+
 	var b strings.Builder
 
 	b.WriteString("HTTP/1.1 200 OK")
@@ -38,7 +38,7 @@ func http200OK(conn net.Conn, body string, headers map[string]string, encoding s
 	b.WriteString(CRLF)
 
 	b.WriteString(body)
-
+	// fmt.Printf("http200OK body: %s \n Headers: %v\n whole text: \n%s\n", body, headers, b.String())
 	conn.Write([]byte(b.String()))
 }
 

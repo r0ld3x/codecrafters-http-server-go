@@ -34,7 +34,7 @@ func handleConnection(conn net.Conn, cfg *Config) {
 
 		path := req.Path
 		encoding := getValidEncoding(req.Headers["accept-encoding"])
-		closeAfter := strings.EqualFold(req.Headers["Connection"], "close")
+		closeAfter := strings.EqualFold(req.Headers["connection"], "close")
 		switch {
 		case path == "/":
 			if closeAfter {
