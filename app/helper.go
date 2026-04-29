@@ -6,21 +6,33 @@ import (
 	"strings"
 )
 
-func http200OK(conn net.Conn, body string) {
+func http200OK(conn net.Conn, body string, headers map[string]string) {
+	if headers == nil {
+		headers = make(map[string]string)
+	}
+	if headers["Content-Length"] == "" {
+		headers["Content-Length"] = fmt.Sprintf("%d", len(body))
+	}
+
+	if headers["Content-Type"] == "" {
+		headers["Content-Type"] = "text/plain"
+	}
 	fmt.Printf("http200OK body: %s", body)
 	var b strings.Builder
 
 	b.WriteString("HTTP/1.1 200 OK")
 	b.WriteString(CRLF)
 
-	b.WriteString("Content-Type: text/plain")
-	b.WriteString(CRLF)
-
-	b.WriteString(fmt.Sprintf("Content-Length: %d", len(body)))
-	b.WriteString(CRLF)
+	for key, value := range headers {
+		b.WriteString(key)
+		b.WriteString(": ")
+		b.WriteString(value)
+		b.WriteString(CRLF)
+	}
 	b.WriteString(CRLF)
 
 	b.WriteString(body)
+	b.WriteString(CRLF)
 
 	conn.Write([]byte(b.String()))
 }

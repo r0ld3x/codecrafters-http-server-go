@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, cfg *Config) {
 	defer conn.Close()
 
 	buf := make([]byte, 1024)
@@ -32,13 +33,23 @@ func handleConnection(conn net.Conn) {
 
 	switch {
 	case path == "/":
-		http200OK(conn, "Hello, World!")
+		http200OK(conn, "Hello, World!", nil)
 	case strings.HasPrefix(path, "/echo/"):
 		echo := strings.TrimPrefix(path, "/echo/")
-		http200OK(conn, echo)
+		http200OK(conn, echo, nil)
 	case path == "/user-agent":
 		ua := req.Headers["user-agent"]
-		http200OK(conn, ua)
+		http200OK(conn, ua, nil)
+	case strings.HasPrefix(path, "/files/"):
+		contents, err := os.ReadFile(cfg.Directory + strings.TrimPrefix(path, "/files/"))
+		if err != nil {
+			http404NotFound(conn)
+			return
+		}
+		header := map[string]string{
+			"Content-Type": "application/octet-stream",
+		}
+		http200OK(conn, string(contents), header)
 	default:
 		http404NotFound(conn)
 	}
