@@ -6,6 +6,7 @@ import (
 )
 
 func http200OK(body string) string {
+	fmt.Printf("http200OK body: %s", body)
 	var b strings.Builder
 
 	b.WriteString("HTTP/1.1 200 OK")
