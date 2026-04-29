@@ -5,7 +5,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 )
 
@@ -29,10 +28,7 @@ func handleConnection(conn net.Conn, cfg *Config) {
 	}
 
 	path := req.Path
-	encoding := req.Headers["accept-encoding"]
-	if encoding != "" && !slices.Contains(acceptedEncodings, encoding) {
-		encoding = ""
-	}
+	encoding := getValidEncoding(req.Headers["accept-encoding"])
 
 	switch {
 	case path == "/":
