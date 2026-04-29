@@ -38,7 +38,6 @@ func http200OK(conn net.Conn, body string, headers map[string]string, encoding s
 	b.WriteString(CRLF)
 
 	b.WriteString(body)
-	b.WriteString(CRLF)
 
 	conn.Write([]byte(b.String()))
 }
