@@ -27,11 +27,6 @@ func handleConnection(conn net.Conn, cfg *Config) {
 
 	path := req.Path
 
-	if req.Method != "GET" {
-		http404NotFound(conn)
-		return
-	}
-
 	switch {
 	case path == "/":
 		http200OK(conn, "Hello, World!", nil)
@@ -43,13 +38,15 @@ func handleConnection(conn net.Conn, cfg *Config) {
 		http200OK(conn, ua, nil)
 	case strings.HasPrefix(path, "/files/"):
 		fullPath := filepath.Join(cfg.Directory, strings.TrimPrefix(path, "/files/"))
+		fmt.Printf("Full path: %s", fullPath)
 		if req.Method == "POST" {
 			err := os.WriteFile(fullPath, []byte(req.Body), 0644)
 			if err != nil {
-				http404NotFound(conn)
+				http500InternalServerError(conn)
 				return
 			}
 			http201Created(conn)
+			return
 		}
 		contents, err := os.ReadFile(fullPath)
 		if err != nil {

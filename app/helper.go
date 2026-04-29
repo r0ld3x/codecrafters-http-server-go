@@ -55,3 +55,12 @@ func http201Created(conn net.Conn) {
 	b.WriteString(CRLF)
 	conn.Write([]byte(b.String()))
 }
+
+func http500InternalServerError(conn net.Conn) {
+	var b strings.Builder
+	b.WriteString("HTTP/1.1 500 Internal Server Error")
+	b.WriteString(CRLF)
+	b.WriteString(CRLF)
+	b.WriteString("Internal Server Error")
+	conn.Write([]byte(b.String()))
+}
