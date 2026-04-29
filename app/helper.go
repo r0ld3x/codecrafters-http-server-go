@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"strings"
 )
 
-func http200OK(body string) string {
+func http200OK(conn net.Conn, body string) {
 	fmt.Printf("http200OK body: %s", body)
 	var b strings.Builder
 
@@ -21,10 +22,10 @@ func http200OK(body string) string {
 
 	b.WriteString(body)
 
-	return b.String()
+	conn.Write([]byte(b.String()))
 }
 
-func http404NotFound() string {
+func http404NotFound(conn net.Conn) {
 	var b strings.Builder
 	b.WriteString("HTTP/1.1 404 Not Found")
 	b.WriteString(CRLF)
@@ -32,5 +33,5 @@ func http404NotFound() string {
 	// b.WriteString(CRLF)
 	b.WriteString(CRLF)
 	b.WriteString("Not Found")
-	return b.String()
+	conn.Write([]byte(b.String()))
 }

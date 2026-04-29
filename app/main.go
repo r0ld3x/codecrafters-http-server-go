@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 )
 
 const CRLF = "\r\n"
@@ -21,39 +20,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		go handleConnection(conn)
 	}
-
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error reading from connection: ", err.Error())
-		os.Exit(1)
-	}
-
-	read := string(buf)
-
-	data, err := parseRequest(read[:n])
-	if err != nil {
-		fmt.Println("Error parsing request: ", err.Error())
-		conn.Close()
-		return
-	}
-
-	path := data.Path
-	var response string
-	if path == "/" {
-		response = http200OK("Hello, World!")
-	} else if after, ok := strings.CutPrefix(path, "/echo/"); ok {
-		response = http200OK(after)
-	} else if path == "/user-agent" {
-		response = http200OK(data.Headers["user-agent"])
-	} else {
-		response = http404NotFound()
-	}
-	conn.Write([]byte(response))
 
 }
