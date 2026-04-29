@@ -6,14 +6,20 @@ import (
 	"strings"
 )
 
-func http200OK(conn net.Conn, body string, headers map[string]string) {
+func http200OK(conn net.Conn, body string, headers map[string]string, encoding string) {
 	if headers == nil {
 		headers = make(map[string]string)
+	}
+	if encoding == "gzip" {
+		compressed, err := gzipCompress([]byte(body))
+		if err == nil {
+			body = string(compressed)
+			headers["Content-Encoding"] = "gzip"
+		}
 	}
 	if headers["Content-Length"] == "" {
 		headers["Content-Length"] = fmt.Sprintf("%d", len(body))
 	}
-
 	if headers["Content-Type"] == "" {
 		headers["Content-Type"] = "text/plain"
 	}
