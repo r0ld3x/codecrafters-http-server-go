@@ -47,3 +47,11 @@ func http404NotFound(conn net.Conn) {
 	b.WriteString("Not Found")
 	conn.Write([]byte(b.String()))
 }
+
+func http201Created(conn net.Conn) {
+	var b strings.Builder
+	b.WriteString("HTTP/1.1 201 Created")
+	b.WriteString(CRLF)
+	b.WriteString(CRLF)
+	conn.Write([]byte(b.String()))
+}

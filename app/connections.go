@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -41,7 +42,16 @@ func handleConnection(conn net.Conn, cfg *Config) {
 		ua := req.Headers["user-agent"]
 		http200OK(conn, ua, nil)
 	case strings.HasPrefix(path, "/files/"):
-		contents, err := os.ReadFile(cfg.Directory + strings.TrimPrefix(path, "/files/"))
+		fullPath := filepath.Join(cfg.Directory, strings.TrimPrefix(path, "/files/"))
+		if req.Method == "POST" {
+			err := os.WriteFile(fullPath, []byte(req.Body), 0644)
+			if err != nil {
+				http404NotFound(conn)
+				return
+			}
+			http201Created(conn)
+		}
+		contents, err := os.ReadFile(fullPath)
 		if err != nil {
 			http404NotFound(conn)
 			return
